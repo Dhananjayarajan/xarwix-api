@@ -3,8 +3,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
+import contactRoute from './routes/contact.route'
 
 dotenv.config();
+
+console.log(process.env.DATABASE_URL)
 
 const app = express();
 
@@ -21,7 +24,6 @@ const allowedOrigins =
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without origin (Postman, curl, mobile apps)
       if (!origin) {
         return callback(null, true);
       }
@@ -36,11 +38,11 @@ app.use(
   })
 );
 
-// Security
 app.use(helmet());
 app.use(morgan("dev"));
 
-// Health Check
+app.use("/api/v1/contact", contactRoute);
+
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
     success: true,
