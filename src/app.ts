@@ -7,7 +7,6 @@ import contactRoute from './routes/contact.route'
 
 dotenv.config();
 
-console.log(process.env.DATABASE_URL)
 
 const app = express();
 
