@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import morgan from "morgan";
 import contactRoute from './routes/contact.route'
+import authRoute from './routes/auth.route';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 app.use("/api/v1/contact", contactRoute);
+app.use("/api/v1/auth", authRoute);
 
 app.get("/api/v1/health", (req, res) => {
   res.status(200).json({
