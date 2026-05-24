@@ -11,8 +11,12 @@ export const register = async (
   res: Response
 ) => {
   try {
-    const { email, password } =
-      req.body;
+const {
+  username,
+  email,
+  password,
+  confirmPassword,
+} = req.body;
 
     if (
       !email ||
@@ -26,6 +30,17 @@ export const register = async (
             'Email and password required',
         });
     }
+
+    if (
+  password !==
+  confirmPassword
+) {
+  return res.status(400).json({
+    success: false,
+    message:
+      'Passwords do not match',
+  });
+}
 
     const existingUser =
       await prisma.user.findUnique(
@@ -56,11 +71,13 @@ export const register = async (
     const user =
       await prisma.user.create(
         {
-          data: {
-            email,
-            password:
-              hashedPassword,
-          },
+data: {
+  username,
+  email:
+    email.toLowerCase(),
+  password:
+    hashedPassword,
+}
         }
       );
 
@@ -76,6 +93,8 @@ export const register = async (
         token,
         user: {
           id: user.id,
+            username:
+    user.username,
           email:
             user.email,
           isEmailVerified:
@@ -140,6 +159,7 @@ export const login = async (
       token,
       user: {
         id: user.id,
+        username : user.username,
         email: user.email,
         isEmailVerified:
           user.isEmailVerified,
