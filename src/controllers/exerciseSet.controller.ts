@@ -34,30 +34,34 @@ export const saveWorkout = async (
     console.time('db-create');
 
     const workout =
-      await prisma.workoutSession.create({
-        data: {
-          userId: req.userId!,
-          workoutName:
-            exerciseName,
+await prisma.workoutSession.create({
+  data: {
+    userId: req.userId!,
+    workoutName:
+      exerciseName,
 
-          ...(createdAt && {
-            createdAt,
-          }),
+    ...(createdAt && {
+      createdAt,
+    }),
 
-          exercises: {
-            create: {
-              userId:
-                req.userId!,
-              muscleGroup,
-              exerciseName,
+    exercises: {
+      create: {
+        userId:
+          req.userId!,
+        muscleGroup,
+        exerciseName,
 
-              sets: {
-                create: sets,
-              },
-            },
-          },
+        sets: {
+          create: sets,
         },
-      });
+      },
+    },
+  },
+});
+
+return res.status(201).json({
+  success: true,
+});
 
     console.timeEnd(
       'db-create'
