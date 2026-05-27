@@ -17,12 +17,73 @@ model contacts {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   username        String?
-  email           String   @unique
+  email           String  @unique
   password        String
-  isEmailVerified Boolean  @default(false)
-  createdAt       DateTime @default(now())
+  isEmailVerified Boolean @default(false)
+
+  // Track which product
+  signupSource String?
+
+  createdAt DateTime @default(now())
+
+  workoutSessions WorkoutSession[]
+  exercises       Exercise[]
 
   @@map("users")
+}
+
+model WorkoutSession {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  workoutName String?
+  createdAt   DateTime @default(now())
+
+  user      User       @relation(fields: [userId], references: [id])
+  exercises Exercise[]
+
+  @@map("workout_sessions")
+}
+
+model Exercise {
+  id               Int @id @default(autoincrement())
+  userId           Int
+  workoutSessionId Int
+
+  muscleGroup  String
+  exerciseName String
+
+  createdAt DateTime @default(now())
+
+  user           User           @relation(fields: [userId], references: [id])
+  workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+
+  sets ExerciseSet[]
+
+  @@map("exercises")
+}
+
+model ExerciseSet {
+  id         Int @id @default(autoincrement())
+  exerciseId Int
+
+  setNumber Int
+  weight    Float
+  reps      Int
+
+  difficulty Difficulty
+
+  createdAt DateTime @default(now())
+
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("exercise_sets")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  NEED_HELP
 }
