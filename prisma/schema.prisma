@@ -34,6 +34,13 @@ model User {
   @@map("users")
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  NEED_HELP
+}
+
 model WorkoutSession {
   id          Int      @id @default(autoincrement())
   userId      Int
@@ -43,6 +50,7 @@ model WorkoutSession {
   user      User       @relation(fields: [userId], references: [id])
   exercises Exercise[]
 
+  @@index([userId, createdAt])
   @@map("workout_sessions")
 }
 
@@ -53,14 +61,15 @@ model Exercise {
 
   muscleGroup  String
   exerciseName String
-
-  createdAt DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   user           User           @relation(fields: [userId], references: [id])
   workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
 
   sets ExerciseSet[]
 
+  @@index([userId])
+  @@index([workoutSessionId])
   @@map("exercises")
 }
 
@@ -73,17 +82,10 @@ model ExerciseSet {
   reps      Int
 
   difficulty Difficulty
-
-  createdAt DateTime @default(now())
+  createdAt  DateTime   @default(now())
 
   exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
+  @@index([exerciseId])
   @@map("exercise_sets")
-}
-
-enum Difficulty {
-  EASY
-  MEDIUM
-  HARD
-  NEED_HELP
 }
