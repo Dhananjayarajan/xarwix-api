@@ -10,19 +10,14 @@ export const saveWorkout = async (
   res: Response
 ) => {
   try {
+    console.time('saveWorkout');
+
     const {
       exerciseName,
       muscleGroup,
       date,
       sets,
     } = req.body;
-
-    if (!exerciseName || !sets?.length) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid data',
-      });
-    }
 
     let createdAt: Date | undefined;
 
@@ -36,53 +31,41 @@ export const saveWorkout = async (
       }
     }
 
+    console.time('db-create');
+
     const workout =
       await prisma.workoutSession.create({
         data: {
           userId: req.userId!,
-          workoutName: exerciseName,
+          workoutName:
+            exerciseName,
+
           ...(createdAt && {
             createdAt,
           }),
 
           exercises: {
             create: {
-              userId: req.userId!,
+              userId:
+                req.userId!,
               muscleGroup,
               exerciseName,
 
               sets: {
-                create: sets.map(
-                  (
-                    set: {
-                      setNumber: number;
-                      weight: number;
-                      reps: number;
-                      difficulty: string;
-                    }
-                  ) => ({
-                    setNumber:
-                      set.setNumber,
-                    weight:
-                      set.weight,
-                    reps: set.reps,
-                    difficulty:
-                      set.difficulty,
-                  })
-                ),
+                create: sets,
               },
             },
           },
         },
-
-        include: {
-          exercises: {
-            include: {
-              sets: true,
-            },
-          },
-        },
       });
+
+    console.timeEnd(
+      'db-create'
+    );
+
+    console.timeEnd(
+      'saveWorkout'
+    );
 
     return res.status(201).json({
       success: true,
