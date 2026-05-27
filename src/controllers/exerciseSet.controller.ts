@@ -5,64 +5,141 @@ interface AuthRequest extends Request {
   userId?: number;
 }
 
-// CREATE SET
-export const createExerciseSet =
+export const saveWorkout = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const {
+      exerciseName,
+      muscleGroup,
+      date,
+      sets,
+    } = req.body;
+
+    if (!exerciseName || !sets?.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid data',
+      });
+    }
+
+    let createdAt: Date | undefined;
+
+    if (date) {
+      const parsed = new Date(
+        `${date}T00:00:00.000Z`
+      );
+
+      if (!isNaN(parsed.getTime())) {
+        createdAt = parsed;
+      }
+    }
+
+    const workout =
+      await prisma.workoutSession.create({
+        data: {
+          userId: req.userId!,
+          workoutName: exerciseName,
+          ...(createdAt && {
+            createdAt,
+          }),
+
+          exercises: {
+            create: {
+              userId: req.userId!,
+              muscleGroup,
+              exerciseName,
+
+              sets: {
+                create: sets.map(
+                  (
+                    set: {
+                      setNumber: number;
+                      weight: number;
+                      reps: number;
+                      difficulty: string;
+                    }
+                  ) => ({
+                    setNumber:
+                      set.setNumber,
+                    weight:
+                      set.weight,
+                    reps: set.reps,
+                    difficulty:
+                      set.difficulty,
+                  })
+                ),
+              },
+            },
+          },
+        },
+
+        include: {
+          exercises: {
+            include: {
+              sets: true,
+            },
+          },
+        },
+      });
+
+    return res.status(201).json({
+      success: true,
+      workout,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Failed to save workout',
+    });
+  }
+};
+
+
+export const getWorkoutLogs =
   async (
     req: AuthRequest,
     res: Response
   ) => {
     try {
-      const {
-        exerciseId,
-        setNumber,
-        weight,
-        reps,
-        difficulty,
-      } = req.body;
+      const workouts =
+        await prisma.workoutSession.findMany({
+          where: {
+            userId: req.userId,
+          },
 
-      const exercise =
-        await prisma.exercise.findFirst(
-          {
-            where: {
-              id: exerciseId,
-              userId:
-                req.userId,
+          include: {
+            exercises: {
+              include: {
+                sets: {
+                  orderBy: {
+                    setNumber:
+                      'asc',
+                  },
+                },
+              },
             },
-          }
-        );
+          },
 
-      if (!exercise) {
-        return res.status(404).json({
-          success: false,
-          message:
-            'Exercise not found',
+          orderBy: {
+            createdAt:
+              'desc',
+          },
         });
-      }
 
-      const set =
-        await prisma.exerciseSet.create(
-          {
-            data: {
-              exerciseId,
-              setNumber,
-              weight,
-              reps,
-              difficulty,
-            },
-          }
-        );
-
-      return res.status(201).json({
+      return res.json({
         success: true,
-        set,
+        workouts,
       });
     } catch (error) {
-      console.error(error);
-
       return res.status(500).json({
         success: false,
         message:
-          'Failed to create set',
+          'Failed to fetch workouts',
       });
     }
   };

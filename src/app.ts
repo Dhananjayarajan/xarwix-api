@@ -5,12 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import contactRoute from './routes/contact.route'
 import authRoute from './routes/auth.route';
-import workoutRoutes from './routes/workout.route';
-import exerciseRoutes
-from './routes/exercise.route';
-
-import exerciseSetRoutes
-from './routes/exerciseSet.route';
+import exerciseSetRoutes from './routes/exerciseSet.route';
 
 dotenv.config();
 
@@ -49,15 +44,11 @@ app.use(morgan("dev"));
 
 app.use("/api/v1/contact", contactRoute);
 app.use("/api/v1/auth", authRoute);
-app.use('/api/v1/workout-session', workoutRoutes
-);
-app.use(
-  '/api/v1/exercise',
-  exerciseRoutes
-);
+
+
 
 app.use(
-  '/api/v1/exercise-set',
+  '/api/v1/workout',
   exerciseSetRoutes
 );
 

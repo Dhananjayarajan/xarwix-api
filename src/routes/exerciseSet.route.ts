@@ -1,7 +1,8 @@
 import express from 'express';
 
 import {
-  createExerciseSet,
+  saveWorkout,
+  getWorkoutLogs,
   updateExerciseSet,
   deleteExerciseSet,
 } from '../controllers/exerciseSet.controller';
@@ -15,17 +16,23 @@ const router =
 router.post(
   '/',
   authMiddleware,
-  createExerciseSet
+  saveWorkout
+);
+
+router.get(
+  '/',
+  authMiddleware,
+  getWorkoutLogs
 );
 
 router.put(
-  '/:id',
+  '/set/:id',
   authMiddleware,
   updateExerciseSet
 );
 
 router.delete(
-  '/:id',
+  '/set/:id',
   authMiddleware,
   deleteExerciseSet
 );
