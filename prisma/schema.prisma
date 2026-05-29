@@ -17,16 +17,18 @@ model contacts {
 }
 
 model User {
-  id              Int     @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   username        String?
-  email           String  @unique
+  email           String   @unique
   password        String
-  isEmailVerified Boolean @default(false)
+  isEmailVerified Boolean  @default(false)
+  signupSource    String?
+  createdAt       DateTime @default(now())
 
-  // Track which product
-  signupSource String?
-
-  createdAt DateTime @default(now())
+  // New fields
+  emailVerificationToken String?
+  passwordResetToken     String?
+  passwordResetExpiry    DateTime?
 
   workoutSessions WorkoutSession[]
   exercises       Exercise[]
