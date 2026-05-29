@@ -61,7 +61,8 @@ model Exercise {
 
   muscleGroup  String
   exerciseName String
-  createdAt    DateTime @default(now())
+  equipment    Equipment @default(BARBELL)
+  createdAt    DateTime  @default(now())
 
   user           User           @relation(fields: [userId], references: [id])
   workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
@@ -88,4 +89,17 @@ model ExerciseSet {
 
   @@index([exerciseId])
   @@map("exercise_sets")
+}
+
+enum Equipment {
+  BARBELL
+  DUMBBELL
+  SMITH_MACHINE
+  MACHINE
+  EZ_BAR
+  CABLE
+  BODYWEIGHT
+  RESISTANCE_BAND
+  KETTLEBELL
+  OTHER
 }

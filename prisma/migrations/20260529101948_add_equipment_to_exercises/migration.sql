@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "Equipment" AS ENUM ('BARBELL', 'DUMBBELL', 'SMITH_MACHINE', 'MACHINE', 'EZ_BAR', 'CABLE', 'BODYWEIGHT', 'RESISTANCE_BAND', 'KETTLEBELL', 'OTHER');
+
+-- AlterTable
+ALTER TABLE "exercises" ADD COLUMN     "equipment" "Equipment" NOT NULL DEFAULT 'BARBELL';

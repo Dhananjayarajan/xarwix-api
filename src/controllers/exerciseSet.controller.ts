@@ -17,6 +17,7 @@ export const saveWorkout = async (
       muscleGroup,
       date,
       sets,
+      equipment
     } = req.body;
 
     let createdAt: Date | undefined;
@@ -50,7 +51,7 @@ await prisma.workoutSession.create({
           req.userId!,
         muscleGroup,
         exerciseName,
-
+equipment: equipment ?? 'BARBELL', 
         sets: {
           create: sets,
         },
