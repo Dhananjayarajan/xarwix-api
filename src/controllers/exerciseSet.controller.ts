@@ -88,49 +88,39 @@ return res.status(201).json({
 };
 
 
-export const getWorkoutLogs =
-  async (
-    req: AuthRequest,
-    res: Response
-  ) => {
-    try {
-      const workouts =
-        await prisma.workoutSession.findMany({
-          where: {
-            userId: req.userId,
-          },
+export const getWorkoutLogs = async (req: AuthRequest, res: Response) => {
+  try {
+    const page  = Math.max(1, parseInt(String(req.query.page  ?? 1)));
+    const limit = Math.min(100, Math.max(1, parseInt(String(req.query.limit ?? 10))));
+    const skip  = (page - 1) * limit;
 
-          include: {
-            exercises: {
-              include: {
-                sets: {
-                  orderBy: {
-                    setNumber:
-                      'asc',
-                  },
-                },
-              },
-            },
+    const [workouts, total] = await Promise.all([
+      prisma.workoutSession.findMany({
+        where:   { userId: req.userId },
+        include: {
+          exercises: {
+            include: { sets: { orderBy: { setNumber: 'asc' } } },
           },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.workoutSession.count({ where: { userId: req.userId } }),
+    ]);
 
-          orderBy: {
-            createdAt:
-              'desc',
-          },
-        });
-
-      return res.json({
-        success: true,
-        workouts,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message:
-          'Failed to fetch workouts',
-      });
-    }
-  };
+    return res.json({
+      success: true,
+      workouts,
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Failed to fetch workouts' });
+  }
+};
 
 // UPDATE SET
 export const updateExerciseSet =
