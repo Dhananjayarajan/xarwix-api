@@ -6,11 +6,14 @@ import morgan from "morgan";
 import contactRoute from './routes/contact.route'
 import authRoute from './routes/auth.route';
 import exerciseSetRoutes from './routes/exerciseSet.route';
+import webhookRouter from './routes/webhook.route';
 
 dotenv.config();
 
 
 const app = express();
+
+app.use('/api/v1/webhooks/hook', express.text({ type: '*/*' }));
 
 app.use(express.json());
 
@@ -44,6 +47,7 @@ app.use(morgan("dev"));
 
 app.use("/api/v1/contact", contactRoute);
 app.use("/api/v1/auth", authRoute);
+ app.use('/api/v1/webhooks', webhookRouter);
 
 
 

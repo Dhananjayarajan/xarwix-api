@@ -105,3 +105,34 @@ enum Equipment {
   KETTLEBELL
   OTHER
 }
+
+// ADD THESE TWO MODELS TO YOUR EXISTING schema.prisma
+
+model WebhookBin {
+  id        String           @id @default(uuid())
+  slug      String           @unique // e.g. "xw_a1b2c3d4"
+  createdAt DateTime         @default(now())
+  expiresAt DateTime // set to now() + 48h in the controller
+  requests  WebhookRequest[]
+
+  @@index([slug])
+  @@index([expiresAt])
+  @@map("webhook_bins")
+}
+
+model WebhookRequest {
+  id         Int      @id @default(autoincrement())
+  binId      String
+  method     String   @db.VarChar(10)
+  headers    Json
+  query      Json
+  body       Json?
+  rawBody    String?
+  ip         String?  @db.VarChar(100)
+  receivedAt DateTime @default(now())
+
+  bin WebhookBin @relation(fields: [binId], references: [id], onDelete: Cascade)
+
+  @@index([binId, receivedAt])
+  @@map("webhook_requests")
+}
