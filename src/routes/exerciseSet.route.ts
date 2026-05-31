@@ -5,6 +5,7 @@ import {
   getWorkoutLogs,
   updateExerciseSet,
   deleteExerciseSet,
+  updateExercise, addSetsToExercise
 } from '../controllers/exerciseSet.controller';
 
 import { authMiddleware }
@@ -36,5 +37,8 @@ router.delete(
   authMiddleware,
   deleteExerciseSet
 );
+
+router.put('/exercise/:id', authMiddleware, updateExercise);
+router.post('/exercise/:id/sets', authMiddleware, addSetsToExercise);
 
 export default router;

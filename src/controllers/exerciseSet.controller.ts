@@ -204,3 +204,36 @@ export const deleteExerciseSet =
       });
     }
   };
+
+  // EDIT EXERCISE (name, muscleGroup, equipment)
+export const updateExercise = async (req: AuthRequest, res: Response) => {
+  try {
+    const exerciseId = Number(req.params.id);
+    const { exerciseName, muscleGroup, equipment } = req.body;
+
+    const exercise = await prisma.exercise.update({
+      where: { id: exerciseId },
+      data: { exerciseName, muscleGroup, equipment },
+    });
+
+    return res.json({ success: true, exercise });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Failed to update exercise' });
+  }
+};
+
+// ADD SETS TO EXISTING EXERCISE
+export const addSetsToExercise = async (req: AuthRequest, res: Response) => {
+  try {
+    const exerciseId = Number(req.params.id);
+    const { sets } = req.body; // [{ setNumber, weight, reps, difficulty }]
+
+    await prisma.exerciseSet.createMany({
+      data: sets.map((s: any) => ({ ...s, exerciseId })),
+    });
+
+    return res.status(201).json({ success: true });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Failed to add sets' });
+  }
+};
