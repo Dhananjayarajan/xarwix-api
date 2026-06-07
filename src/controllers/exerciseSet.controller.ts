@@ -106,8 +106,14 @@ export const getWorkoutLogs = async (req: AuthRequest, res: Response) => {
         skip,
         take: limit,
       }),
-      prisma.workoutSession.count({ where: { userId: req.userId } }),
-    ]);
+    prisma.exercise.count({
+    where: {
+      userId: req.userId,
+      sets: {
+        some: {},
+      },
+    },
+  }),    ]);
 
     return res.json({
       success: true,
@@ -226,4 +232,82 @@ export const addSetsToExercise = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     return res.status(500).json({ success: false, message: 'Failed to add sets' });
   }
+};
+
+export const getAllExerciseName = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const exercises = await prisma.exercise.findMany({
+    where: {
+      userId: req.userId,
+    },
+    distinct: ['exerciseName'],
+    select: {
+      exerciseName: true,
+    },
+    orderBy: {
+      exerciseName: 'asc',
+    },
+  });
+
+  return res.json(exercises);
+};
+
+export const filterExerciseByMuscle = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const { muscleGroup } = req.body;
+
+  const exercises = await prisma.exercise.findMany({
+    where: {
+      userId: req.userId,
+      muscleGroup: {
+        in: muscleGroup,
+      },
+    },
+    include: {
+      sets: {
+        orderBy: {
+          setNumber: 'asc',
+        },
+      },
+      workoutSession: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return res.json(exercises);
+};
+
+export const filterExerciseByName = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  const { exerciseNames } = req.body;
+
+  const exercises = await prisma.exercise.findMany({
+    where: {
+      userId: req.userId,
+      exerciseName: {
+        in: exerciseNames,
+      },
+    },
+    include: {
+      sets: {
+        orderBy: {
+          setNumber: 'asc',
+        },
+      },
+      workoutSession: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  return res.json(exercises);
 };

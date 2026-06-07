@@ -5,7 +5,10 @@ import {
   getWorkoutLogs,
   updateExerciseSet,
   deleteExerciseSet,
-  updateExercise, addSetsToExercise
+  updateExercise, addSetsToExercise,
+  getAllExerciseName,
+  filterExerciseByMuscle,
+  filterExerciseByName
 } from '../controllers/exerciseSet.controller';
 
 import { authMiddleware }
@@ -40,5 +43,11 @@ router.delete(
 
 router.put('/exercise/:id', authMiddleware, updateExercise);
 router.post('/exercise/:id/sets', authMiddleware, addSetsToExercise);
+
+router.get('/get-all-exercise', authMiddleware, getAllExerciseName)
+
+router.post('/filter-by-muscle', authMiddleware, filterExerciseByMuscle)
+
+router.post('/filter-by-exercise', authMiddleware, filterExerciseByName)
 
 export default router;
